@@ -4,8 +4,63 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed71cad14a5811209b7a21691766c0fa",
-    "packages": [],
+    "content-hash": "94600c299bb9d8bd4152663d50233b98",
+    "packages": [
+        {
+            "name": "piggly/php-payload",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "gitea@git.piggly.com.br:piggly/php-payload.git",
+                "reference": "88ce489b73bde770e726006081b82b38949ee4f3"
+            },
+            "require": {
+                "php": "^7.3 || ^8.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5",
+                "respect/validation": "^2.2",
+                "roave/security-advisories": "dev-latest"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Piggly\\Payload\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Piggly\\Dev\\Payload\\": "tests/src/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Caique Araujo",
+                    "email": "caique@piggly.com.br",
+                    "homepage": "https://github.com/caiquearaujo",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple payload data manager.",
+            "homepage": "https://git.piggly.com.br/piggly/php-payload",
+            "keywords": [
+                "attributes",
+                "data",
+                "fields",
+                "payload",
+                "piggly"
+            ],
+            "time": "2021-04-27T14:57:08+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "doctrine/instantiator",

@@ -5,6 +5,18 @@ use Exception;
 use Piggly\Http\BaseResponse;
 use Throwable;
 
+/**
+ * A ResponseException which can be handled as an BaseResponse.
+ * 
+ * An exception means some error, and error does not include payloads.
+ * But, you can manually include by calling $exception->response()->payload($payload)
+ * before the $exception->handle() method.
+ *
+ * @since 1.0.0
+ * @package Piggly\Http
+ * @subpackage Piggly\Http\Exceptions
+ * @author Caique Araujo <caique@piggly.com.br>
+ */
 class ResponseException extends Exception
 {
 	/** @var int INVALID_REQUEST_PARAM_CODE Response code when request parameters are invalid. */
@@ -42,7 +54,7 @@ class ResponseException extends Exception
 	)
 	{
 		parent::__construct($message, $code, $previous);
-		$this->_response = BaseResponse::make($code, $http_code, $message, $hint);
+		$this->_response = BaseResponse::make(null, $code, $http_code, $message, $hint);
 	}
 
 	/**

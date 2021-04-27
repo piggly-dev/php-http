@@ -1,9 +1,19 @@
 <?php
 namespace Piggly\Http;
 
-use Piggly\Http\Interfaces\HttpPayloadInterface;
+use JsonSerializable;
+use Piggly\Payload\Interfaces\PayloadInterface;
 
-abstract class BaseResponse 
+/**
+ * A BaseRequest object to support any type of Response object
+ * and interact with response data in a smart way.
+ *
+ * @since 1.0.0
+ * @package Piggly\Http
+ * @subpackage Piggly\Http
+ * @author Caique Araujo <caique@piggly.com.br>
+ */
+abstract class BaseResponse implements JsonSerializable
 {
 	/**
 	 * Success code for response.
@@ -48,7 +58,7 @@ abstract class BaseResponse
 	/**
 	 * Response payload.
 	 * 
-	 * @var HttpPayloadInterface
+	 * @var PayloadInterface
 	 * @since 1.0.0
 	 */
 	private $payload;
@@ -72,20 +82,25 @@ abstract class BaseResponse
 	/**
 	 * Startup response with default headers.
 	 * 
+	 * @param BaseRequest $request
 	 * @param array $headers HTTP Headers
 	 * @since 1.0.0
 	 * @return self
 	 */
-	public function __construct ( array $headers = [] )
+	public function __construct ( BaseRequest $request = null, array $headers = [] )
 	{
 		$this->withHeaders(\array_merge([
 			'Content-Type' => 'application/json'
 		], $headers));
+
+		if ( !empty($request) )
+		{ $this->request($request); }
 	}
 
 	/**
 	 * Create a new response object.
 	 * 
+	 * @param BaseRequest $request
 	 * @param int $code
 	 * @param int $http_code
 	 * @param string|null $message
@@ -95,6 +110,7 @@ abstract class BaseResponse
 	 * @return BaseResponse
 	 */
 	public static function make (
+		BaseRequest $request = null,
 		int $code = self::SUCCESS_CODE,
 		int $http_code = 200,
 		$message = null,
@@ -102,7 +118,7 @@ abstract class BaseResponse
 		array $headers = []
 	) : BaseResponse
 	{
-		$response = new BaseResponse($headers);
+		$response = new BaseResponse($request, $headers);
 
 		$response
 			->code($code)
@@ -247,19 +263,19 @@ abstract class BaseResponse
 	 * Get payload associated to response.
 	 * 
 	 * @since 1.0.0
-	 * @return HttpPayloadInterface|null
+	 * @return PayloadInterface|null
 	 */
-	public function getPayload () : ?HttpPayloadInterface
+	public function getPayload () : ?PayloadInterface
 	{ return $this->payload; }
 
 	/**
 	 * Set payload to response.
 	 * 
-	 * @param HttpPayloadInterface $payload
+	 * @param PayloadInterface $payload
 	 * @since 1.0.0
 	 * @return self
 	 */
-	public function payload ( HttpPayloadInterface $payload )
+	public function payload ( PayloadInterface $payload )
 	{ $this->payload = $payload; return $this; }
 
 	/**
@@ -298,14 +314,25 @@ abstract class BaseResponse
 			
 			if ( !empty( $this->message ) )
 			{ $payload['status_message'] = $this->message; }
+
+			if ( !empty($this->payload) )
+			{ $payload['data'] = $this->payload->toArray(); }
 		}
+		else
+		{ $payload = array_merge($payload, $this->payload->toArray()); }
 
 		if ( !empty( $this->hint ) )
 		{ $payload['status_hint'] = $this->hint; }
 
-		if ( !empty($this->payload) )
-		{ $payload['data'] = $this->payload->toArray(); }
-
 		return $payload;
 	}
+  
+	/**
+	 * Prepare the resource for JSON serialization.
+	 *
+	 * @since 1.0.0
+	 * @return array
+	 */
+	public function jsonSerialize()
+	{ return $this->getContent(); }
 }
