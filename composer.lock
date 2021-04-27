@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "piggly/php-payload",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "gitea@git.piggly.com.br:piggly/php-payload.git",
-                "reference": "88ce489b73bde770e726006081b82b38949ee4f3"
+                "reference": "37331005376537e124b950a59fe041717248bca1"
             },
             "require": {
                 "php": "^7.3 || ^8.0"
@@ -58,7 +58,7 @@
                 "payload",
                 "piggly"
             ],
-            "time": "2021-04-27T14:57:08+00:00"
+            "time": "2021-04-27T22:12:46+00:00"
         }
     ],
     "packages-dev": [
