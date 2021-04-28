@@ -82,6 +82,34 @@ abstract class BaseRequest
 	abstract public function getFiles () : array;
 
 	/**
+	 * Set request attribute.
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @since 1.0.5
+	 * @return self
+	 */
+	abstract public function setAttribute ( string $key, $value );
+
+	/**
+	 * Get request attribute.
+	 * 
+	 * @param string $key
+	 * @param mixed $default Default value to return when $key is empty.
+	 * @since 1.0.5
+	 * @return mixed
+	 */
+	abstract public function getAttribute ( string $key, $default );
+
+	/**
+	 * Get current request method.
+	 * 
+	 * @since 1.0.5
+	 * @return string
+	 */
+	abstract public function getMethod () : string;
+
+	/**
 	 * Get original request object.
 	 * 
 	 * @since 1.0.0

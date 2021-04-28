@@ -13,6 +13,7 @@ use Throwable;
  * before the $exception->handle() method.
  *
  * @since 1.0.0
+ * @since 1.0.5 Remove $response property and handle requires BaseResponse
  * @package Piggly\Http
  * @subpackage Piggly\Http\Exceptions
  * @author Caique Araujo <caique@piggly.com.br>
@@ -25,14 +26,22 @@ class ResponseException extends Exception
 	const INVALID_REQUEST_CODE = 21;
 	/** @var int SERVER_ERROR_CODE Response code when handle a server error. */
 	const SERVER_ERROR_CODE = 18;
+	
+	/**
+	 * Exception HTTP Code.
+	 * 
+	 * @var int
+	 * @since 1.0.5
+	 */
+	private $http_code;
 
 	/**
-	 * Response created to exception.
+	 * Exception hint.
 	 * 
-	 * @var BaseResponse
-	 * @since 1.0.0
+	 * @var string
+	 * @since 1.0.5
 	 */
-	protected $_response;
+	private $hint;
 
 	/**
 	 * Create a new response exception.
@@ -54,8 +63,28 @@ class ResponseException extends Exception
 	)
 	{
 		parent::__construct($message, $code, $previous);
-		$this->_response = BaseResponse::make(null, $code, $http_code, $message, $hint);
+
+		$this->hint = $hint;
+		$this->http_code = $http_code;
 	}
+
+	/**
+	 * Get response hint.
+	 * 
+	 * @since 1.0.5
+	 * @return string|null
+	 */
+	public function getHint () : ?string
+	{ return $this->hint; }
+
+	/**
+	 * Get response http code.
+	 * 
+	 * @since 1.0.5
+	 * @return int|null
+	 */
+	public function getHttpCode () : ?int
+	{ return $this->http_code; }
 
 	/**
 	 * Throw when some body parameters values are invalid or malformed.
@@ -162,30 +191,27 @@ class ResponseException extends Exception
 	}
 
 	/**
-	 * Get current response associated with expection.
-	 * 
-	 * @since 1.0.0
-	 * @return BaseResponse
-	 */
-	public function response () : BaseResponse
-	{ return $this->_response; }
-
-	/**
 	 * Handle response object returning the response.
 	 * 
 	 * @since 1.0.0
 	 * @return mixed
 	 */
-	public function handle ()
+	public function handle ( BaseResponse $response )
 	{
+		$response
+			->code($this->code)
+			->httpCode($this->http_code)
+			->message($this->message)
+			->hint($this->hint);
+		
 		$prev = $this->getPrevious();
 
 		if ( $prev instanceof ResponseException )
 		{
-			if ( $prev->response()->getCode() !== $this->response()->getCode() )
-			{ $this->response()->hint( $prev->response()->getContent() ); }
+			if ( $prev->getCode() !== $this->getCode() )
+			{ $response->hint( $prev->getHint() ); }
 		}
 
-		return $this->response()->handle();
+		return $response->handle();
 	}
 }
