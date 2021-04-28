@@ -1,10 +1,6 @@
 <?php
 namespace Piggly\Http\Payloads;
 
-use Exception;
-use Piggly\Http\BaseRequest;
-use Piggly\Payload\Concerns\PayloadValidable;
-use Piggly\Payload\Exceptions\InvalidDataException;
 use Piggly\Payload\Exceptions\JsonEncodingException;
 use Piggly\Payload\Interfaces\PayloadInterface;
 
@@ -16,7 +12,7 @@ use Piggly\Payload\Interfaces\PayloadInterface;
  * @subpackage Piggly\Http\Payloads
  * @author Caique Araujo <caique@piggly.com.br>
  */ 
-abstract class PayloadResponse implements PayloadInterface
+class PayloadResponse implements PayloadInterface
 {
 	/**
 	 * Payload data.
