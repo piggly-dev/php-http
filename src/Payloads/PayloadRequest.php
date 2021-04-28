@@ -1,6 +1,7 @@
 <?php
 namespace Piggly\Http\Payloads;
 
+use Exception;
 use Piggly\Http\BaseRequest;
 use Piggly\Payload\Concerns\PayloadValidable;
 use Piggly\Payload\Exceptions\InvalidDataException;
@@ -155,6 +156,24 @@ abstract class PayloadRequest implements PayloadInterface, PayloadValidable
 			if ( is_null($value) )
 			{ throw InvalidDataException::invalid($this, $key, $value, 'Cannot be empty value'); }
 		}
+	}
+
+	/**
+	 * Validate all data from payload.
+	 * But, instead throw an exception when cannot
+	 * validate, return a boolean.
+	 * 
+	 * @since 1.0.2
+	 * @return bool TRUE when valid, FALSE when invalid.
+	 */
+	public function isValid () : bool
+	{
+		try
+		{ $this->validate(); }
+		catch ( Exception $e )
+		{ return false; }
+
+		return true;
 	}
 
 	/**
