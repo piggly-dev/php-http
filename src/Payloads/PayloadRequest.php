@@ -3,6 +3,7 @@ namespace Piggly\Http\Payloads;
 
 use Exception;
 use Piggly\Http\BaseRequest;
+use Piggly\Payload\Concerns\PayloadImportable;
 use Piggly\Payload\Concerns\PayloadValidable;
 use Piggly\Payload\Exceptions\InvalidDataException;
 use Piggly\Payload\Exceptions\JsonEncodingException;
@@ -16,10 +17,10 @@ use Piggly\Payload\Interfaces\PayloadInterface;
  * @subpackage Piggly\Http\Payloads
  * @author Caique Araujo <caique@piggly.com.br>
  */ 
-abstract class PayloadRequest implements PayloadInterface, PayloadValidable
+abstract class PayloadRequest implements PayloadInterface, PayloadValidable, PayloadImportable
 {
 	/**
-	 * Fill $_PARAMS from request body.
+	 * Fill $_payload with request body.
 	 * 
 	 * @var int
 	 * @since 1.0.1
@@ -27,7 +28,7 @@ abstract class PayloadRequest implements PayloadInterface, PayloadValidable
 	const FROM_BODY = 1;
 
 	/**
-	 * Fill $_PARAMS from request query string.
+	 * Fill $_payload with request query string.
 	 * 
 	 * @var int
 	 * @since 1.0.1
@@ -35,12 +36,12 @@ abstract class PayloadRequest implements PayloadInterface, PayloadValidable
 	const FROM_QUERY = 2;
 
 	/**
-	 * Request parameters.
+	 * Fill $_payload with request header.
 	 * 
-	 * @var array
-	 * @since 1.0.1
+	 * @var int
+	 * @since 1.0.6
 	 */
-	private $_PARAMS = [];
+	const FROM_HEADER = 3;
 
 	/**
 	 * Payload data.
@@ -99,26 +100,33 @@ abstract class PayloadRequest implements PayloadInterface, PayloadValidable
 	 * @param BaseRequest $request
 	 * @param int $fillFrom Params origin.
 	 * @since 1.0.1
+	 * @since 1.0.6 Compatible with PayloadImportable
+	 * @since 1.0.6 Extract data from headers.
 	 * @return self
 	 */
 	public function import (
-		BaseRequest $request, 
+		$request, 
 		int $fillFrom = self::FROM_BODY
 	)
 	{
+		$params = [];
+
 		switch ( $fillFrom )
 		{
 			case self::FROM_BODY:
-				$this->_PARAMS = $request->getParsedBody();
+				$params = $request->getParsedBody();
 				break;
 			case self::FROM_QUERY:
-				$this->_PARAMS = $request->getQueryParams();
+				$params = $request->getQueryParams();
+				break;
+			case self::FROM_HEADER:
+				$params = $request->getHeaders();
 				break;
 		}
 
 		foreach ( $this->map as $key => $method )
 		{
-			$value = $this->_PARAMS[$key] ?? null;
+			$value = $params[$key] ?? null;
 
 			// Fill when not null
 			if ( !is_null($value) )

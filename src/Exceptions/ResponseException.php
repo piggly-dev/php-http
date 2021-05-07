@@ -3,6 +3,7 @@ namespace Piggly\Http\Exceptions;
 
 use Exception;
 use Piggly\Http\BaseResponse;
+use Piggly\Payload\Interfaces\PayloadInterface;
 use Throwable;
 
 /**
@@ -23,9 +24,9 @@ class ResponseException extends Exception
 	/** @var int INVALID_REQUEST_PARAM_CODE Response code when request parameters are invalid. */
 	const INVALID_REQUEST_PARAM_CODE = 5;
 	/** @var int INVALID_REQUEST_CODE Response code when request data is invalid. */
-	const INVALID_REQUEST_CODE = 21;
+	const INVALID_REQUEST_CODE = 15;
 	/** @var int SERVER_ERROR_CODE Response code when handle a server error. */
-	const SERVER_ERROR_CODE = 18;
+	const SERVER_ERROR_CODE = 20;
 	
 	/**
 	 * Exception HTTP Code.
@@ -42,6 +43,14 @@ class ResponseException extends Exception
 	 * @since 1.0.5
 	 */
 	private $hint;
+
+	/**
+	 * Exception payload.
+	 * 
+	 * @var PayloadInterface
+	 * @since 1.0.6
+	 */
+	private $payload;
 
 	/**
 	 * Create a new response exception.
@@ -67,6 +76,25 @@ class ResponseException extends Exception
 		$this->hint = $hint;
 		$this->http_code = $http_code;
 	}
+
+	/**
+	 * Get payload associated to response.
+	 * 
+	 * @since 1.0.6
+	 * @return PayloadInterface|null
+	 */
+	public function getPayload () : ?PayloadInterface
+	{ return $this->payload; }
+
+	/**
+	 * Set payload to response.
+	 * 
+	 * @param PayloadInterface $payload
+	 * @since 1.0.6
+	 * @return self
+	 */
+	public function payload ( PayloadInterface $payload )
+	{ $this->payload = $payload; return $this; }
 
 	/**
 	 * Get response hint.
@@ -194,6 +222,7 @@ class ResponseException extends Exception
 	 * Handle response object returning the response.
 	 * 
 	 * @since 1.0.0
+	 * @since 1.0.6 Added payload to response.
 	 * @return mixed
 	 */
 	public function handle ( BaseResponse $response )
@@ -203,6 +232,9 @@ class ResponseException extends Exception
 			->httpCode($this->http_code)
 			->message($this->message)
 			->hint($this->hint);
+
+		if ( isset($this->payload) && !empty($this->payload) )
+		{ $response->payload($this->payload); }
 		
 		$prev = $this->getPrevious();
 

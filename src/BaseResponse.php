@@ -64,6 +64,14 @@ abstract class BaseResponse implements JsonSerializable
 	private $payload;
 
 	/**
+	 * Response redirect data.
+	 * 
+	 * @var array|bool
+	 * @since 1.0.0
+	 */
+	private $redirect;
+
+	/**
 	 * Response headers.
 	 * 
 	 * @var array
@@ -95,6 +103,8 @@ abstract class BaseResponse implements JsonSerializable
 
 		if ( !empty($request) )
 		{ $this->request($request); }
+
+		$this->redirect = false;
 	}
 
 	/**
@@ -279,18 +289,99 @@ abstract class BaseResponse implements JsonSerializable
 	{ $this->payload = $payload; return $this; }
 
 	/**
+	 * Prepare redirection to handle() function.
+	 *
+	 * @param string $uri
+	 * @param PayloadInterface|null $payload To query string.
+	 * @param integer $status
+	 * @param array $headers
+	 * @param boolean|null $secure
+	 * @since 1.0.6
+	 * @return void
+	 */
+	public function redirectTo ( 
+		string $uri, 
+		PayloadInterface $payload = null,
+		int $status = 302, 
+		array $headers = []
+	)
+	{
+		$this->redirect = $uri;
+
+		if ( !empty($payload) )
+		{
+			$query = http_build_query($payload->toArray());
+			$this->redirect = strpos($uri, '?') !== false ? $uri.'&'.$query : $uri.'?'.$query;
+		}
+
+		$this
+			->httpCode($status)
+			->withHeaders($headers);
+
+		return $this;
+	}
+
+	/**
+	 * Handle the current response object to your application
+	 * returning the expected response. If this response issue
+	 * a redirect, then call _redirect() method, otherwise
+	 * call _handle() method.
+	 * 
+	 * @since 1.0.6
+	 * @return void
+	 */
+	public function handle ()
+	{
+		if ( $this->redirect !== false )
+		{ 
+			return $this->_redirect(
+				$this->redirect,
+				$this->getHttpCode() ?? 302,
+				$this->getHeaders(),
+				$this
+			); 
+		}
+
+		return $this->_handle(
+			$this->getContent(),
+			$this->getHttpCode(),
+			$this->getHeaders(),
+			$this
+		);
+	}
+
+	/**
+	 * Handle the current response redirect object to your application
+	 * returning the expected response.
+	 * 
+	 * @param array $uri URI to redirect.
+	 * @param int $status HTTP status code.
+	 * @param array $headers Headers.
+	 * @since 1.0.6
+	 * @return mixed
+	 */
+	abstract protected function _redirect ( 
+		string $uri, 
+		int $status = 302, 
+		array $headers = []
+	);
+
+	/**
 	 * Handle the current response object to your application
 	 * returning the expected response.
 	 * 
-	 * 	content -> $this->getContent();
-	 * 	headers -> $this->getHeaders();
-	 * 	code -> $this->getCode();
-	 * 	httpCode -> $this->getHttpCode();
-	 * 
+	 * @param array $content Body.
+	 * @param int $status HTTP status code.
+	 * @param array $headers Headers.
 	 * @since 1.0.0
+	 * @since 1.0.6 Changed function behavior
 	 * @return mixed
 	 */
-	abstract public function handle ();
+	abstract protected function _handle ( 
+		array $content, 
+		int $status, 
+		array $headers
+	);
 
 	/**
 	 * Get current $payload and add to it response status
@@ -316,7 +407,7 @@ abstract class BaseResponse implements JsonSerializable
 			{ $payload['status_message'] = $this->message; }
 
 			if ( !empty($this->payload) )
-			{ $payload['data'] = $this->payload->toArray(); }
+			{ $payload['body'] = $this->payload->toArray(); }
 		}
 		else
 		{ $payload = array_merge($payload, $this->payload->toArray()); }

@@ -2,6 +2,7 @@
 namespace Piggly\Http;
 
 use InvalidArgumentException;
+use Piggly\Payload\Concerns\PayloadImportable;
 use Piggly\Payload\Exceptions\InvalidDataException;
 use Piggly\Payload\Interfaces\PayloadInterface;
 
@@ -40,9 +41,10 @@ abstract class BaseRequest
 	 * 
 	 * @param string $name
 	 * @since 1.0.0
+	 * @since 1.0.6 Removed $default parameter.
 	 * @return bool
 	 */
-	abstract public function hasHeader ( string $name, $default = null ) : bool;
+	abstract public function hasHeader ( string $name ) : bool;
 
 	/**
 	 * Get a header data.
@@ -53,6 +55,15 @@ abstract class BaseRequest
 	 * @return mixed
 	 */
 	abstract public function header ( string $name, $default = null );
+
+	/**
+	 * Get all headers from original request object as array.
+	 * Return an empty array if headers has no data.
+	 * 
+	 * @since 1.0.0
+	 * @return array
+	 */
+	abstract public function getHeaders () : array;
 
 	/**
 	 * Get all query string parameters from original request object as array.
@@ -123,19 +134,20 @@ abstract class BaseRequest
 	 * 
 	 * @param string $class
 	 * @since 1.0.0
-	 * @return PayloadInterface
+	 * @since 1.0.6 PayloadImportable is required.
+	 * @return PayloadImportable
 	 * @throws InvalidArgumentException When class does not exist or does not match
 	 * @throws InvalidDataException When cannot import some data
 	 */
-	public function payloableBody ( string $class ) : PayloadInterface
+	public function payloableBody ( string $class ) : PayloadImportable
 	{
 		if ( !\class_exists($class) )
 		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not exist.', $class)); }
 		
-		if ( \in_array(PayloadInterface::class, \class_implements($class), true) === false )
-		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not implement PayloadInterface.', $class)); }
+		if ( \in_array(PayloadImportable::class, \class_implements($class), true) === false )
+		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not implement PayloadImportable.', $class)); }
 
-		/** @var PayloadInterface $payload */
+		/** @var PayloadImportable $payload */
 		$payload = new $class();
 
 		$payload->import($this->getParsedBody());
@@ -147,19 +159,20 @@ abstract class BaseRequest
 	 * 
 	 * @param string $class
 	 * @since 1.0.0
-	 * @return PayloadInterface
+	 * @since 1.0.6 PayloadImportable is required.
+	 * @return PayloadImportable
 	 * @throws InvalidArgumentException When class does not exist or does not match
 	 * @throws InvalidDataException When cannot import some data
 	 */
-	public function payloableQuery ( string $class ) : PayloadInterface
+	public function payloableQuery ( string $class ) : PayloadImportable
 	{
 		if ( !\class_exists($class) )
 		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not exist.', $class)); }
 
-		if ( \in_array(PayloadInterface::class, \class_implements($class), true) === false )
-		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not implement PayloadInterface.', $class)); }
+		if ( \in_array(PayloadImportable::class, \class_implements($class), true) === false )
+		{ throw new InvalidArgumentException(sprintf('Payload class `%s` does not implement PayloadImportable.', $class)); }
 
-		/** @var PayloadInterface $payload */
+		/** @var PayloadImportable $payload */
 		$payload = new $class();
 
 		$payload->import($this->getQueryParams());

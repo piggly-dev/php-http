@@ -1,40 +1,30 @@
 <?php
-namespace Piggly\Dev\Http;
+namespace Piggly\Http\Supports\Laravel;
 
 use Piggly\Http\BaseRequest;
 
-class EmulatedRequest extends BaseRequest
+/**
+ * Implementation to Illuminate\Http\Request
+ * 
+ * @since 1.0.6
+ * @package Piggly\Http
+ * @subpackage Piggly\Http\Supports
+ * @author Caique Araujo <caique@piggly.com.br>
+ */
+class IlluminateRequest extends BaseRequest
 {
-	/**
-	 * EMULATE REQUEST HEADERS.
-	 * 
-	 * @var array
-	 * @since 1.0.0
-	 */
-	private $_headers = [
-		'Content-Type' => 'application/json'
-	];
-
-	/**
-	 * EMULATE REQUEST ATTRIBUTES.
-	 * 
-	 * @var array
-	 * @since 1.0.0
-	 */
-	private $_attributes = [];
-
 	/**
 	 * Check if a header $name exists.
 	 * 
 	 * @param string $name
 	 * @since 1.0.0
+	 * @since 1.0.6 Removed $default parameter.
 	 * @return bool
 	 */
 	public function hasHeader ( string $name ) : bool
-	{ return isset($this->_headers[$name]); }
+	{ return $this->_request->hasHeader($name); }
 
 	/**
-	 * EMULATE A REQUEST HEADERS ARRAY.
 	 * Get a header data.
 	 * 
 	 * @param string $name
@@ -43,7 +33,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return mixed
 	 */
 	public function header ( string $name, $default = null )
-	{ return $this->hasHeader($name) ? $this->_headers[$name] : $default; }
+	{ return $this->_request->header($name, $default); }
 
 	/**
 	 * Get all headers from original request object as array.
@@ -53,10 +43,9 @@ class EmulatedRequest extends BaseRequest
 	 * @return array
 	 */
 	public function getHeaders () : array
-	{ return $this->headers; }
+	{ return $this->_request->headers->all(); }
 
 	/**
-	 * EMULATE QUERY PARAMETERS FROM REQUEST.
 	 * Get all query string parameters from original request object as array.
 	 * Return an empty array if query string parameters has no data.
 	 * 
@@ -64,11 +53,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return array
 	 */
 	public function getQueryParams () : array
-	{
-		return [
-			'user_id' => 10
-		];
-	}
+	{ return $this->_request->query->all(); }
 
 	/**
 	 * Get all body data from original request object as array.
@@ -78,22 +63,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return array
 	 */
 	public function getParsedBody () : array
-	{
-		return [
-			'name' => 'John Connor',
-			'email' => 'john@skynet.com',
-			'phone' => '+1-202-555-0172',
-			'address' => [
-				'address' => 'Future Avenue',
-				'number' => '2047',
-				'complement' => 'High Tech World',
-				'district' => 'Nobody\'s Alive',
-				'city' => 'Unknown',
-				'country_id' => 'US',
-				'postal_code' => '55372'
-			]
-		];
-	}
+	{ return $this->_request->request->all(); }
 
 	/**
 	 * Get all files data from original request object as array.
@@ -103,7 +73,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return array
 	 */
 	public function getFiles () : array
-	{ return []; }
+	{ return $this->_request->files->all(); }
 
 	/**
 	 * Set request attribute.
@@ -114,7 +84,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return self
 	 */
 	public function setAttribute ( string $key, $value )
-	{ $this->_attributes[$key] = $value; }
+	{ $this->_request->attributes->set($key, $value); return $this; }
 
 	/**
 	 * Get request attribute.
@@ -125,7 +95,7 @@ class EmulatedRequest extends BaseRequest
 	 * @return mixed
 	 */
 	public function getAttribute ( string $key, $default )
-	{ return $this->_attributes[$key] ?? $default; }
+	{ return $this->_request->attributes->get($key, $default); }
 
 	/**
 	 * Get current request method.
@@ -133,6 +103,6 @@ class EmulatedRequest extends BaseRequest
 	 * @since 1.0.5
 	 * @return string
 	 */
-	public function getMethod ( $method = 'GET' ) : string
-	{ return $method; }
+	public function getMethod () : string
+	{ return $this->_request->getMethod(); }
 }
