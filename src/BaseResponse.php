@@ -297,7 +297,8 @@ abstract class BaseResponse implements JsonSerializable
 	 * @param array $headers
 	 * @param boolean|null $secure
 	 * @since 1.0.6
-	 * @return void
+	 * @since 1.0.7 Payload is saved.
+	 * @return self
 	 */
 	public function redirectTo ( 
 		string $uri, 
@@ -310,6 +311,7 @@ abstract class BaseResponse implements JsonSerializable
 
 		if ( !empty($payload) )
 		{
+			$this->payload($payload);
 			$query = http_build_query($payload->toArray());
 			$this->redirect = strpos($uri, '?') !== false ? $uri.'&'.$query : $uri.'?'.$query;
 		}
@@ -328,7 +330,8 @@ abstract class BaseResponse implements JsonSerializable
 	 * call _handle() method.
 	 * 
 	 * @since 1.0.6
-	 * @return void
+	 * @since 1.0.7 Removed invalid argument.
+	 * @return mixed
 	 */
 	public function handle ()
 	{
@@ -337,16 +340,14 @@ abstract class BaseResponse implements JsonSerializable
 			return $this->_redirect(
 				$this->redirect,
 				$this->getHttpCode() ?? 302,
-				$this->getHeaders(),
-				$this
+				$this->getHeaders()
 			); 
 		}
 
 		return $this->_handle(
 			$this->getContent(),
 			$this->getHttpCode(),
-			$this->getHeaders(),
-			$this
+			$this->getHeaders()
 		);
 	}
 

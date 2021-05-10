@@ -26,6 +26,10 @@ All notable changes to `piggly/php-http` will be documented in this file.
 
 * Added attributes to `BaseRequest` and fixes at `ResponseException`.
 
-## 1.0.6 - `2021-06-07`
+## 1.0.6 - `2021-05-07`
 
 * Updated all objects, exchanged exception and created the `laravel/laravel` support.
+
+## 1.0.7 - `2021-05-10`
+
+* Small fixes at `BaseResponse` object.
