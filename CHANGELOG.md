@@ -33,3 +33,7 @@ All notable changes to `piggly/php-http` will be documented in this file.
 ## 1.0.7 - `2021-05-10`
 
 * Small fixes at `BaseResponse` object.
+
+## 1.0.8 - `2021-05-11`
+
+* Fix at `getAttribute()` method on `BaseRequest`.

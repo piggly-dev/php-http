@@ -110,7 +110,7 @@ abstract class BaseRequest
 	 * @since 1.0.5
 	 * @return mixed
 	 */
-	abstract public function getAttribute ( string $key, $default );
+	abstract public function getAttribute ( string $key, $default = null );
 
 	/**
 	 * Get current request method.
